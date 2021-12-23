@@ -13,11 +13,11 @@ test/run-table-string-map: src/table/test/table-string-map.test.sh
 test/table-string-benchmark: src/log/log.o
 test/table-string-benchmark: src/table/table.o
 test/table-string-benchmark: src/table/test/table-string-benchmark.test.o
-test/table-string-map: src/convert/fd.o
+test/table-string-map: src/convert/source.o
 test/table-string-map: src/convert/getline.o
+test/table-string-map: src/convert/fd/source.o
 test/table-string-map: src/log/log.o
 test/table-string-map: src/window/string.o
-test/table-string-map: src/convert/def.o
 test/table-string-map: src/range/strstr.o
 test/table-string-map: src/table/table.o
 test/table-string-map: src/table/test/table-string-map.test.o

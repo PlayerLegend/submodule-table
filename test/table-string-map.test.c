@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <unistd.h>
 #define FLAT_INCLUDES
 #include "../../range/def.h"
 #include "../../window/def.h"
 #include "../../window/string.h"
 #include "../../keyargs/keyargs.h"
-#include "../../convert/def.h"
-#include "../../convert/fd.h"
+#include "../../convert/source.h"
+#include "../../convert/fd/source.h"
 #include "../../convert/getline.h"
 #include "../table.h"
 
@@ -47,7 +48,7 @@ void parse_key_value (char ** key, char ** value, char * input)
 int main(int argc, char * argv[])
 {
     window_unsigned_char read_buffer = {0};
-    fd_interface fd_read = fd_interface_init (.fd = STDIN_FILENO, .read_buffer = &read_buffer);
+    fd_source fd_source = fd_source_init (.fd = STDIN_FILENO, .contents = &read_buffer);
     table_string map = {0};
     range_const_char line_range;
     range_const_char end_seq = { .begin = "\n", .end = end_seq.begin + 1 };
@@ -58,7 +59,7 @@ int main(int argc, char * argv[])
     char * value;
     char * line;
 
-    while (convert_getline (&error, &line_range, &fd_read.interface, &end_seq))
+    while (convert_getline (&error, &line_range, &fd_source.source, &end_seq))
     {
 	window_strcpy_range (&line_copy, &line_range);
 
