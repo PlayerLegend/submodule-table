@@ -11,80 +11,63 @@
 #include "../../range/string.h"
 #include "../string.h"
 
-define_string_host_map(test, struct { int a, b; });
+map_string_define(test_ab, struct { int a, b; });
 
-define_string_ref_map(test, struct { int c, d; });
+void * test_ab_link_new(void * table)
+{
+    return calloc (1, sizeof(test_ab_link));
+}
 
 void test_host_map()
 {
-    host_string_to_test_table table = {0};
+    test_ab_table table = { .link_new = test_ab_link_new };
 
-    host_string_to_test_include_string(&table, "asdf")->value = (host_string_to_test_value){ .a = 1, .b = 2 };
+    test_ab_include_string(&table, "asdf")->value = (test_ab_value){ .a = 1, .b = 2 };
 
-    host_string_to_test_include_string(&table, "bcle")->value = (host_string_to_test_value){ .a = 3, .b = 5 };
+    test_ab_include_string(&table, "bcle")->value = (test_ab_value){ .a = 3, .b = 5 };
 
-    host_string_to_test_include_string(&table, "1234")->value = (host_string_to_test_value){ .a = 7, .b = 11 };
+    test_ab_include_string(&table, "1234")->value = (test_ab_value){ .a = 7, .b = 11 };
 
-    assert (range_streq_string(&host_string_to_test_include_string(&table, "asdf")->query.key, "asdf"));
-    assert (host_string_to_test_include_string(&table, "asdf") == host_string_to_test_include_string(&table, "asdf"));
+    assert (range_streq_string(&test_ab_include_string(&table, "asdf")->query.key, "asdf"));
+    assert (test_ab_include_string(&table, "asdf") == test_ab_include_string(&table, "asdf"));
 
-    assert (host_string_to_test_include_string(&table, "asdf")->value.a == 1);
-    assert (host_string_to_test_include_string(&table, "asdf")->value.b == 2);
+    assert (test_ab_include_string(&table, "asdf")->value.a == 1);
+    assert (test_ab_include_string(&table, "asdf")->value.b == 2);
 
-    assert (host_string_to_test_include_string(&table, "bcle")->value.a == 3);
-    assert (host_string_to_test_include_string(&table, "bcle")->value.b == 5);
+    assert (test_ab_include_string(&table, "bcle")->value.a == 3);
+    assert (test_ab_include_string(&table, "bcle")->value.b == 5);
 
-    assert (host_string_to_test_include_string(&table, "1234")->value.a == 7);
-    assert (host_string_to_test_include_string(&table, "1234")->value.b == 11);
+    assert (test_ab_include_string(&table, "1234")->value.a == 7);
+    assert (test_ab_include_string(&table, "1234")->value.b == 11);
 }
 
-define_string_host_map(self, host_string_to_self_pair*);
+map_string_define(self, self_pair*);
+
+void * self_link_new (void * table)
+{
+    return calloc (1, sizeof(self_link));
+}
+
 void test_host_self_map()
 {
-    host_string_to_self_table table = {0};
+    self_table table = { .link_new = self_link_new };
 
-    host_string_to_self_include_string(&table, "a")->value = host_string_to_self_include_string(&table, "picture");
-    host_string_to_self_include_string(&table, "is")->value = host_string_to_self_include_string(&table, "worth");
-    host_string_to_self_include_string(&table, "a")->value = host_string_to_self_include_string(&table, "thousand");
-    host_string_to_self_include_string(&table, "words")->value = host_string_to_self_include_string(&table, "words");
+    self_include_string(&table, "a")->value = self_include_string(&table, "picture");
+    self_include_string(&table, "is")->value = self_include_string(&table, "worth");
+    self_include_string(&table, "a")->value = self_include_string(&table, "thousand");
+    self_include_string(&table, "words")->value = self_include_string(&table, "words");
 
-    assert (host_string_to_self_include_string(&table, "is")->value == host_string_to_self_include_string(&table, "worth"));
-    assert (host_string_to_self_include_string(&table, "a")->value == host_string_to_self_include_string(&table, "thousand"));
-    assert (host_string_to_self_include_string(&table, "words")->value == host_string_to_self_include_string(&table, "words"));
+    assert (self_include_string(&table, "is")->value == self_include_string(&table, "worth"));
+    assert (self_include_string(&table, "a")->value == self_include_string(&table, "thousand"));
+    assert (self_include_string(&table, "words")->value == self_include_string(&table, "words"));
 
-    assert (0 == strcmp (host_string_to_self_include_string(&table, "is")->query.key.begin, "is"));
-}
-
-define_string_ref_map(self, ref_string_to_self_pair*);
-void test_ref_map()
-{
-    host_string_to_self_table host = {0};
-
-    host_string_to_self_include_string(&host, "a")->value = host_string_to_self_include_string(&host, "picture");
-    host_string_to_self_include_string(&host, "is")->value = host_string_to_self_include_string(&host, "worth");
-    host_string_to_self_include_string(&host, "a")->value = host_string_to_self_include_string(&host, "thousand");
-    host_string_to_self_include_string(&host, "words")->value = host_string_to_self_include_string(&host, "words");
-
-    table_string_query * query_a = &host_string_to_self_include_string(&host, "a")->query;  
-    table_string_query * query_is = &host_string_to_self_include_string(&host, "is")->query;
-    table_string_query * query_words = &host_string_to_self_include_string(&host, "words")->query;
-
-    ref_string_to_self_table ref = {0};
-
-    range_calloc(ref, 100);
-    
-    ref_string_to_self_include(&ref, query_a)->value = ref_string_to_self_include(&ref, query_is);
-    ref_string_to_self_include(&ref, query_words)->value = ref_string_to_self_include(&ref, query_a);
-    
-    assert (ref_string_to_self_include(&ref, query_a)->value == ref_string_to_self_include(&ref, query_is));
-    assert (ref_string_to_self_include(&ref, query_words)->value == ref_string_to_self_include(&ref, query_a));
+    assert (0 == strcmp (self_include_string(&table, "is")->query.key.begin, "is"));
 }
 
 int main()
 {
     test_host_map();
     test_host_self_map();
-    test_ref_map();
 
     return 0;
 }
