@@ -23,15 +23,15 @@ static map_string_digest sdbm_hash_range(const range_const_char * src)
     return digest;
 }
 
-void map_string_to_none_resize(map_string_to_none_table * haystack, size_t size)
+void map_string_base_resize(map_string_base_table * haystack, size_t size)
 {
-    map_string_to_none_table old_table = *haystack;
+    map_string_base_table old_table = *haystack;
 
     range_calloc(*haystack, size);
     
-    map_string_to_none_link ** src;
+    map_string_base_link ** src;
 
-    map_string_to_none_link * move;
+    map_string_base_link * move;
 
     for_range(src, old_table)
     {
@@ -46,15 +46,15 @@ void map_string_to_none_resize(map_string_to_none_table * haystack, size_t size)
     free (old_table.begin);
 }
 
-map_string_to_none_link ** map_string_to_none_seek(map_string_to_none_table * haystack, map_string_query * needle)
+map_string_base_link ** map_string_base_seek(map_string_base_table * haystack, const map_string_query * needle)
 {
-    map_string_to_none_link ** retval = haystack->begin + needle->digest % range_count(*haystack);
+    map_string_base_link ** retval = haystack->begin + needle->digest % range_count(*haystack);
 
-    map_string_to_none_link * check;
+    map_string_base_link * check;
     
     while ( (check = *retval) )
     {
-	if (check->child.query.digest == needle->digest && range_streq (&check->child.query.key, &needle->key))
+	if (check->child.query.digest == needle->digest && range_streq (&check->child.query.key.range, &needle->key.range))
 	{
 	    return retval;
 	}
@@ -65,20 +65,16 @@ map_string_to_none_link ** map_string_to_none_seek(map_string_to_none_table * ha
     return retval;
 }
 
-#define map_string_to_none_query_init(needle) (map_string_query){ .digest = sdbm_hash_range(needle), .key = *needle };
+#define map_string_base_query_init(needle) (map_string_query){ .digest = sdbm_hash_range(needle), .key.range = *needle };
 
-map_string_to_none_pair * map_string_to_none_include(map_string_to_none_table * haystack, const range_const_char * needle)
+map_string_base_pair * map_string_base_include_query(map_string_base_table * haystack, const map_string_query * needle, size_t link_size)
 {
-    assert (haystack->link_new);
-    
     if (80 * haystack->link_count >= 100 * (size_t)range_count(*haystack))
     {
-	map_string_to_none_resize(haystack, 2 * range_count(*haystack) + 1031);
+	map_string_base_resize(haystack, 2 * range_count(*haystack) + 1031);
     }
     
-    map_string_query query = map_string_to_none_query_init(needle);
-
-    map_string_to_none_link ** link = map_string_to_none_seek (haystack, &query);
+    map_string_base_link ** link = map_string_base_seek (haystack, needle);
 
     if (*link)
     {
@@ -86,10 +82,10 @@ map_string_to_none_pair * map_string_to_none_include(map_string_to_none_table * 
     }
     else
     {
-	map_string_to_none_link * new = haystack->link_new(haystack);
+	map_string_base_link * new = calloc(1, link_size);
 
-	new->child.query.digest = query.digest;
-	range_strdup(&new->child.query._key, needle);
+	new->child.query.digest = needle->digest;
+	range_strdup(&new->child.query.key._internal_range, &needle->key.range);
 	
 	new->peer = *link;
 	*link = new;
@@ -100,8 +96,16 @@ map_string_to_none_pair * map_string_to_none_include(map_string_to_none_table * 
     }
 }
 
-map_string_to_none_pair * map_string_to_none_include_string(map_string_to_none_table * haystack, const char * needle)
+map_string_base_pair * map_string_base_include_range(map_string_base_table * haystack, const range_const_char * needle, size_t link_size)
 {
-    range_const_char needle_range = { .begin = needle, .end = needle + strlen(needle) };
-    return map_string_to_none_include(haystack, &needle_range);
+    map_string_query needle_query = map_string_base_query_init(needle);
+
+    return map_string_base_include_query(haystack, &needle_query, link_size);
+}
+
+map_string_base_pair * map_string_base_include_string(map_string_base_table * haystack, const char * needle, size_t link_size)
+{
+    range_const_char needle_range;
+    range_string_init(&needle_range, needle);
+    return map_string_base_include_range(haystack, &needle_range, link_size);
 }

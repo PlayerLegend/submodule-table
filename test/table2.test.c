@@ -20,7 +20,7 @@ void * test_ab_link_new(void * table)
 
 void test_host_map()
 {
-    test_ab_table table = { .link_new = test_ab_link_new };
+    test_ab_table table = {0};
 
     test_ab_include_string(&table, "asdf")->value = (test_ab_value){ .a = 1, .b = 2 };
 
@@ -28,7 +28,7 @@ void test_host_map()
 
     test_ab_include_string(&table, "1234")->value = (test_ab_value){ .a = 7, .b = 11 };
 
-    assert (range_streq_string(&test_ab_include_string(&table, "asdf")->query.key, "asdf"));
+    assert (range_streq_string(&test_ab_include_string(&table, "asdf")->query.key.range, "asdf"));
     assert (test_ab_include_string(&table, "asdf") == test_ab_include_string(&table, "asdf"));
 
     assert (test_ab_include_string(&table, "asdf")->value.a == 1);
@@ -50,7 +50,7 @@ void * self_link_new (void * table)
 
 void test_host_self_map()
 {
-    self_table table = { .link_new = self_link_new };
+    self_table table = {0};
 
     self_include_string(&table, "a")->value = self_include_string(&table, "picture");
     self_include_string(&table, "is")->value = self_include_string(&table, "worth");
@@ -61,7 +61,7 @@ void test_host_self_map()
     assert (self_include_string(&table, "a")->value == self_include_string(&table, "thousand"));
     assert (self_include_string(&table, "words")->value == self_include_string(&table, "words"));
 
-    assert (0 == strcmp (self_include_string(&table, "is")->query.key.begin, "is"));
+    assert (0 == strcmp (self_include_string(&table, "is")->query.key.string, "is"));
 }
 
 int main()

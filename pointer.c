@@ -6,11 +6,11 @@
 
 #include "../range/alloc.h"
 
-map_voidp_to_none_link ** map_voidp_to_none_seek(map_voidp_to_none_table * haystack, void * needle)
+map_pointer_base_link ** map_pointer_base_seek(map_pointer_base_table * haystack, void * needle)
 {
-    map_voidp_to_none_link ** retval = haystack->begin + ((uintptr_t)needle) % range_count(*haystack);
+    map_pointer_base_link ** retval = haystack->begin + ((uintptr_t)needle) % range_count(*haystack);
 
-    map_voidp_to_none_link * check;
+    map_pointer_base_link * check;
 
     while ( (check = *retval) )
     {
@@ -25,16 +25,14 @@ map_voidp_to_none_link ** map_voidp_to_none_seek(map_voidp_to_none_table * hayst
     return retval;
 }
 
-map_voidp_to_none_pair * map_voidp_to_none_include(map_voidp_to_none_table * haystack, void * needle)
+map_pointer_base_pair * map_pointer_base_include(map_pointer_base_table * haystack, void * needle, size_t link_size)
 {
-    assert (haystack->link_new);
-    
     if (80 * haystack->link_count >= 100 * (size_t)range_count(*haystack))
     {
-	map_voidp_to_none_resize(haystack, 2 * range_count(*haystack) + 1031);
+	map_pointer_base_resize(haystack, 2 * range_count(*haystack) + 1031);
     }
     
-    map_voidp_to_none_link ** link = map_voidp_to_none_seek(haystack, needle);
+    map_pointer_base_link ** link = map_pointer_base_seek(haystack, needle);
 
     if (*link)
     {
@@ -42,7 +40,7 @@ map_voidp_to_none_pair * map_voidp_to_none_include(map_voidp_to_none_table * hay
     }
     else
     {
-	map_voidp_to_none_link * new = haystack->link_new(haystack);
+	map_pointer_base_link * new = calloc (1, link_size);
 
 	new->child.ref = needle;
 	
@@ -55,15 +53,15 @@ map_voidp_to_none_pair * map_voidp_to_none_include(map_voidp_to_none_table * hay
     }
 }
 
-void map_voidp_to_none_resize(map_voidp_to_none_table * haystack, size_t size)
+void map_pointer_base_resize(map_pointer_base_table * haystack, size_t size)
 {
-    map_voidp_to_none_table old_table = *haystack;
+    map_pointer_base_table old_table = *haystack;
 
     range_calloc(*haystack, size);
     
-    map_voidp_to_none_link ** src;
+    map_pointer_base_link ** src;
 
-    map_voidp_to_none_link * move;
+    map_pointer_base_link * move;
 
     for_range(src, old_table)
     {

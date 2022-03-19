@@ -28,6 +28,7 @@ test/table-string-map: src/window/alloc.o
 test/table2: src/table/test/table2.test.o
 test/table2: src/table/string.o
 test/table2: src/range/range_streq_string.o
+test/table2: src/range/string_init.o
 test/table2: src/range/streq.o
 test/table2: src/range/range_strdup.o
 
