@@ -48,7 +48,7 @@ void parse_key_value (char ** key, char ** value, char * input)
 int main(int argc, char * argv[])
 {
     window_unsigned_char read_buffer = {0};
-    fd_source fd_source = fd_source_init (.fd = STDIN_FILENO, .contents = &read_buffer);
+    fd_source fd_source = fd_source_init (STDIN_FILENO, &read_buffer);
     table_string map = {0};
     range_const_char line_range;
     range_const_char end_seq = { .begin = "\n", .end = end_seq.begin + 1 };
