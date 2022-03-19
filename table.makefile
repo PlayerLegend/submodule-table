@@ -10,6 +10,8 @@ table-benchmarks: test/table-string-benchmark
 #table-tests: test/run-table-string-map
 #table-tests: test/table-string-map
 table-tests: test/table2
+table-tests: test/run-table-string-map
+table-tests: test/table-string-map
 
 test/run-table-string-map: src/table/test/table-string-map.test.sh
 test/table-string-benchmark: src/log/log.o
@@ -27,10 +29,10 @@ test/table-string-map: src/window/alloc.o
 
 test/table2: src/table/test/table2.test.o
 test/table2: src/table/string.o
-test/table2: src/range/range_streq_string.o
+test/table2: src/range/streq_string.o
 test/table2: src/range/string_init.o
 test/table2: src/range/streq.o
-test/table2: src/range/range_strdup.o
+test/table2: src/range/strdup.o
 
 tests: table-tests
 

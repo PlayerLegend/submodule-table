@@ -7,7 +7,7 @@
 #include "../../range/def.h"
 #include "../../window/def.h"
 #include "../../window/string.h"
-#include "../../keyargs/keyargs.h"
+//#include "../../keyargs/keyargs.h"
 #include "../../convert/source.h"
 #include "../../convert/fd/source.h"
 #include "../../convert/getline.h"
@@ -20,7 +20,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include "../../log/log.h"
-#include "../../keyargs/keyargs.h"
+//#include "../../keyargs/keyargs.h"
 
 char * skip_isspace (char * input, bool pred)
 {
