@@ -8,6 +8,7 @@
 #include "../range/alloc.h"
 #include "../range/string.h"
 #include "string.h"
+#include "../log/log.h"
 
 static map_string_digest sdbm_hash_range(const range_const_char * src)
 {
@@ -46,12 +47,12 @@ void map_string_base_resize(map_string_base_table * haystack, size_t size)
     free (old_table.begin);
 }
 
-map_string_base_link ** map_string_base_seek(map_string_base_table * haystack, const map_string_query * needle)
+map_string_base_link ** map_string_base_seek_query(map_string_base_table * haystack, const map_string_query * needle)
 {
     map_string_base_link ** retval = haystack->begin + needle->digest % range_count(*haystack);
 
     map_string_base_link * check;
-    
+
     while ( (check = *retval) )
     {
 	if (check->child.query.digest == needle->digest && range_streq (&check->child.query.key.range, &needle->key.range))
@@ -74,7 +75,7 @@ map_string_base_pair * map_string_base_include_query(map_string_base_table * hay
 	map_string_base_resize(haystack, 2 * range_count(*haystack) + 1031);
     }
     
-    map_string_base_link ** link = map_string_base_seek (haystack, needle);
+    map_string_base_link ** link = map_string_base_seek_query (haystack, needle);
 
     if (*link)
     {
@@ -86,7 +87,8 @@ map_string_base_pair * map_string_base_include_query(map_string_base_table * hay
 
 	new->child.query.digest = needle->digest;
 	range_strdup(&new->child.query.key._internal_range, &needle->key.range);
-	
+	assert (range_count(needle->key.range) == range_count(new->child.query.key.range));
+
 	new->peer = *link;
 	*link = new;
 
@@ -99,7 +101,7 @@ map_string_base_pair * map_string_base_include_query(map_string_base_table * hay
 map_string_base_pair * map_string_base_include_range(map_string_base_table * haystack, const range_const_char * needle, size_t link_size)
 {
     map_string_query needle_query = map_string_base_query_init(needle);
-
+    
     return map_string_base_include_query(haystack, &needle_query, link_size);
 }
 
@@ -107,5 +109,22 @@ map_string_base_pair * map_string_base_include_string(map_string_base_table * ha
 {
     range_const_char needle_range;
     range_string_init(&needle_range, needle);
+    assert (strlen(needle) == (size_t)range_count(needle_range));
+
     return map_string_base_include_range(haystack, &needle_range, link_size);
+}
+
+map_string_base_link ** map_string_base_seek_range(map_string_base_table * haystack, const range_const_char * needle)
+{
+    map_string_query needle_query = map_string_base_query_init(needle);
+
+    return map_string_base_seek_query(haystack, &needle_query);
+}
+
+map_string_base_link ** map_string_base_seek_string(map_string_base_table * haystack, const char * needle)
+{
+    range_const_char needle_range;
+    range_string_init(&needle_range, needle);
+    assert (strlen(needle) == (size_t)range_count(needle_range));
+    return map_string_base_seek_range(haystack, &needle_range);
 }

@@ -1,15 +1,9 @@
-#include <stdio.h>
-#include <assert.h>
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdlib.h>
-#define FLAT_INCLUDES
-#include "../../range/def.h"
-#include "../../range/alloc.h"
-#include "../../range/string.h"
 #include "../string.h"
+
+#include <string.h>
+#include <assert.h>
+#include <stdbool.h>
+#include "../../range/string.h"
 
 map_string_define(test_ab, struct { int a, b; });
 
@@ -39,6 +33,23 @@ void test_host_map()
 
     assert (test_ab_include_string(&table, "1234")->value.a == 7);
     assert (test_ab_include_string(&table, "1234")->value.b == 11);
+
+    assert (&(*test_ab_seek_string(&table, "asdf"))->child == test_ab_include_string(&table, "asdf"));
+    assert (&(*test_ab_seek_string(&table, "asdf"))->child == test_ab_lookup_string(&table, "asdf"));
+    
+    assert (test_ab_lookup_string(&table, "asdf"));
+    assert (test_ab_lookup_string(&table, "asdf")->value.a == 1);
+    assert (test_ab_lookup_string(&table, "asdf")->value.b == 2);
+
+    assert (test_ab_lookup_string(&table, "bcle"));
+    assert (test_ab_lookup_string(&table, "bcle")->value.a == 3);
+    assert (test_ab_lookup_string(&table, "bcle")->value.b == 5);
+
+    assert (test_ab_lookup_string(&table, "1234"));
+    assert (test_ab_lookup_string(&table, "1234")->value.a == 7);
+    assert (test_ab_lookup_string(&table, "1234")->value.b == 11);
+
+    test_ab_table_clear(&table);
 }
 
 map_string_define(self, self_pair*);
@@ -62,6 +73,8 @@ void test_host_self_map()
     assert (self_include_string(&table, "words")->value == self_include_string(&table, "words"));
 
     assert (0 == strcmp (self_include_string(&table, "is")->query.key.string, "is"));
+    
+    self_table_clear(&table);
 }
 
 int main()
