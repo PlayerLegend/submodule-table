@@ -35,7 +35,7 @@ inline static map_pointer_base_link * map_pointer_base_unlink (map_pointer_base_
     return retval;
 }
 
-#define map_pointer_function_define(prefix)					\
+#define map_pointer_function_define(prefix)				\
     inline static prefix##_link ** prefix##_seek(prefix##_table * haystack, prefix##_key needle) \
     {									\
 	return (void*) map_pointer_base_seek((void*)haystack, (void*) needle); \
@@ -54,7 +54,43 @@ inline static map_pointer_base_link * map_pointer_base_unlink (map_pointer_base_
     inline static prefix##_link * prefix##_unlink(prefix##_link ** target) \
     {									\
 	return (void*) map_pointer_base_unlink((void*) target);		\
-    }
+    }									\
+									\
+    inline static void prefix##_table_clear (prefix##_table * target)	\
+    {									\
+	prefix##_link ** bucket;					\
+	prefix##_link * remove;						\
+	for_range(bucket, *target)					\
+	{								\
+	    while ( (remove = *bucket) )				\
+	    {								\
+		*bucket = remove->peer;					\
+		prefix##_value_clear(&remove->child.value);		\
+		free (remove);						\
+	    }								\
+	}								\
+	free(target->begin);						\
+    }									\
+									\
+    inline static void prefix##_table_free (prefix##_table * target)	\
+    {									\
+	prefix##_table_clear(target);					\
+	free(target);							\
+    }									\
+									\
+    inline static void prefix##_value_free (prefix##_value * target)	\
+    {									\
+	prefix##_value_clear(target);					\
+	free(target);							\
+    }									\
+									\
+    inline static prefix##_link * prefix##_link_alloc (prefix##_table * host, prefix##_key key) \
+    {									\
+	host->link_count++;						\
+	prefix##_link * retval = calloc (1, sizeof(prefix##_link));	\
+	retval->child.ref = key;						\
+	return retval;							\
+    }									\
 
 #define map_pointer_def(prefix, key_type, ...)		\
     map_pointer_type_declare(prefix);			    \

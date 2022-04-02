@@ -1,0 +1,12 @@
+src/table/pointer.o: src/log/log.h
+src/table/pointer.o: src/range/alloc.h
+src/table/pointer.o: src/range/def.h
+src/table/pointer.o: src/table/pointer.h
+src/table/string.o: src/log/log.h
+src/table/string.o: src/range/alloc.h
+src/table/string.o: src/range/def.h
+src/table/string.o: src/range/string.h
+src/table/string.o: src/table/string.h
+src/table/test/table2.test.o: src/range/def.h
+src/table/test/table2.test.o: src/range/string.h
+src/table/test/table2.test.o: src/table/string.h

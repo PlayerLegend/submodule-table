@@ -28,16 +28,6 @@ run-table-tests:
 
 depend: table-depend
 table-depend:
-	makedepend -Y -f src/table/table.makefile `find src/table -type f -name '*.c'`
+	cdeps src/table > src/table/depends.makefile
 
 depend: table-depend
-
-# DO NOT DELETE
-
-src/table/pointer.o: src/table/pointer.h src/range/def.h src/range/alloc.h
-src/table/test/table2.test.o: src/table/string.h src/range/def.h
-src/table/test/table2.test.o: src/range/string.h src/range/def.h
-src/table/test/table-string-benchmark.test.o: src/keyargs/keyargs.h
-src/table/test/table-string-benchmark.test.o: src/log/log.h
-src/table/string.o: src/range/def.h src/range/alloc.h src/range/string.h
-src/table/string.o: src/table/string.h src/log/log.h

@@ -6,8 +6,15 @@
 
 #include "../range/alloc.h"
 
+#include "../log/log.h"
+
 map_pointer_base_link ** map_pointer_base_seek(map_pointer_base_table * haystack, void * needle)
 {
+    if (80 * haystack->link_count >= 100 * (size_t)range_count(*haystack))
+    {
+	map_pointer_base_resize(haystack, 2 * range_count(*haystack) + 1031);
+    }
+    
     map_pointer_base_link ** retval = haystack->begin + ((uintptr_t)needle) % range_count(*haystack);
 
     map_pointer_base_link * check;
@@ -27,11 +34,6 @@ map_pointer_base_link ** map_pointer_base_seek(map_pointer_base_table * haystack
 
 map_pointer_base_pair * map_pointer_base_include(map_pointer_base_table * haystack, void * needle, size_t link_size)
 {
-    if (80 * haystack->link_count >= 100 * (size_t)range_count(*haystack))
-    {
-	map_pointer_base_resize(haystack, 2 * range_count(*haystack) + 1031);
-    }
-    
     map_pointer_base_link ** link = map_pointer_base_seek(haystack, needle);
 
     if (*link)
