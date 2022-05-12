@@ -55,12 +55,12 @@ map_string_base_pair * map_string_base_include_string(map_string_base_table * ha
 #define map_string_function_define(prefix)				\
     inline static prefix##_link * prefix##_unlink(prefix##_link ** target) \
     {									\
-	return (void*) map_string_base_unlink ((void*)target);		\
+	return (prefix##_link*) map_string_base_unlink ((void*)target);		\
     }									\
 									\
     inline static prefix##_link ** prefix##_seek_query (prefix##_table * haystack, const map_string_query * needle) \
     {									\
-	return (void*) map_string_base_seek_query((void*) haystack, (void*) needle); \
+	return (prefix##_link**) map_string_base_seek_query((void*) haystack, (void*) needle); \
     }									\
 									\
     inline static prefix##_link ** prefix##_seek_range (prefix##_table * haystack, const range_const_char * needle) \
@@ -93,17 +93,17 @@ map_string_base_pair * map_string_base_include_string(map_string_base_table * ha
 									\
     inline static prefix##_pair * prefix##_include_query (prefix##_table * haystack, map_string_query * needle) \
     {									\
-	return (void*)map_string_base_include_query((void*)haystack, needle, sizeof(prefix##_link)); \
+	return (prefix##_pair*)map_string_base_include_query((void*)haystack, needle, sizeof(prefix##_link)); \
     }									\
 									\
     inline static prefix##_pair * prefix##_include_range (prefix##_table * haystack, const range_const_char * needle) \
     {									\
-	return (void*)map_string_base_include_range((void*)haystack, needle, sizeof(prefix##_link)); \
+	return (prefix##_pair*)map_string_base_include_range((void*)haystack, needle, sizeof(prefix##_link)); \
     }									\
 									\
     inline static prefix##_pair * prefix##_include_string (prefix##_table * haystack, const char * needle) \
     {									\
-	return (void*)map_string_base_include_string((void*)haystack, needle, sizeof(prefix##_link)); \
+	return (prefix##_pair*)map_string_base_include_string((void*)haystack, needle, sizeof(prefix##_link)); \
     }									\
 									\
     inline static void prefix##_resize (prefix##_table * haystack, size_t size) \
@@ -121,7 +121,7 @@ map_string_base_pair * map_string_base_include_string(map_string_base_table * ha
 	    {								\
 		*bucket = remove->peer;					\
 		prefix##_value_clear(&remove->child.value);		\
-		free (remove->child.query.key._internal_range.begin);		\
+		free (remove->child.query.key._internal_range.begin);	\
 		free (remove);						\
 	    }								\
 	}								\

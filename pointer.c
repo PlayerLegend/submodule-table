@@ -7,12 +7,67 @@
 #include "../range/alloc.h"
 
 #include "../log/log.h"
+#include <stdbool.h>
+
+static bool probably_prime(unsigned int n)
+{
+    unsigned int test_max = n / 10;
+
+    if (n & 1)
+    {
+	for (unsigned int test = 3; test <= test_max; test += 2)
+	{
+	    if (n % test == 0)
+	    {
+		return false;
+	    }
+	}
+
+	return true;
+    }
+    else
+    {
+	return n == 2;
+    }
+}
 
 map_pointer_base_link ** map_pointer_base_seek(map_pointer_base_table * haystack, void * needle)
 {
-    if (80 * haystack->link_count >= 100 * (size_t)range_count(*haystack))
+    size_t size = range_count(*haystack);
+    
+    if (80 * haystack->link_count >= 100 * size)
     {
-	map_pointer_base_resize(haystack, 2 * range_count(*haystack) + 1031);
+	switch (size)
+	{
+	case 0:
+	    size = 1;
+	    break;
+
+	case 1:
+	    size = 7;
+	    break;
+
+	case 8:
+	    size = 59;
+	    break;
+
+	default:
+	    size = 2 * size + 1031;
+
+	    for (int i = 0; i < 10; i++)
+	    {
+		size += 2;
+
+		if (probably_prime(size))
+		{
+		    break;
+		}
+	    }
+	    
+	    break;
+	}
+	    
+	map_pointer_base_resize(haystack, size);
     }
     
     map_pointer_base_link ** retval = haystack->begin + ((uintptr_t)needle) % range_count(*haystack);
